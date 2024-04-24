@@ -13,6 +13,25 @@
     <?php
     // include the database file 
     include('db_conn.php');
+    
+    // Check if delete action is triggered
+    if(isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
+        $paperID = $_GET['id'];
+        
+        // Perform delete operation
+        $delete_query = "DELETE FROM papers WHERE paperID = :paperID";
+        $stmt = $db->prepare($delete_query);
+        $stmt->bindParam(':paperID', $paperID, PDO::PARAM_INT);
+        if($stmt->execute()) {
+            // Deleted successfully, redirect back to the page with a success message
+            echo "<script>alert('Row deleted successfully');</script>";
+            echo "<script>window.location.href = 'submission.php';</script>"; // Redirect to submission.php
+            exit();
+        } else {
+            // Failed to delete, show error message or handle as per your requirement
+            echo "<script>alert('Failed to delete row');</script>";
+        }
+    }
     ?>
 </head>
 
@@ -20,6 +39,7 @@
     <div class="container">
         <h1>Submission List</h1>
     </div>
+    
 
     <div class="container p-2">
         <a href="createsubmission.php" class="btn btn-sm btn-secondary">Submit a new paper</a>
@@ -62,9 +82,7 @@
                     <td>
                         <a href="#" class="btn btn-sm btn-primary reviewer-btn" data-paper-id="<?php echo $row['PaperID']; ?>">Review</a>
                         <a href="edit.php?paper_id=<?php echo $row['PaperID']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                        <form method="post" action="delete.php" style="display: inline;">
-                            <input type="hidden" name="paper_id" value="<?php echo $row['PaperID']; ?>">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
+                        <a href='?action=delete&id=<?php echo $row['PaperID']; ?>' class="btn btn-sm btn-danger" onclick='return confirm("Are you sure you want to delete this item?")'>Delete</a>
                         </form>
                     </td>
                 </tr>
